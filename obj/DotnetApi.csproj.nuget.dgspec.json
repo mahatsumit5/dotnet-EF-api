@@ -50,9 +50,33 @@
               "target": "Package",
               "version": "[8.0.8, )"
             },
+            "Microsoft.Data.Sqlclient": {
+              "target": "Package",
+              "version": "[5.2.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
+            "Microsoft.EntityframeworkCore": {
+              "target": "Package",
+              "version": "[8.0.8, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.4.0, )"
+            },
+            "automapper": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            },
+            "dapper": {
+              "target": "Package",
+              "version": "[2.1.35, )"
             }
           },
           "imports": [
