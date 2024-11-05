@@ -1,3 +1,5 @@
+using DotnetApi.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
@@ -36,6 +38,7 @@ builder.Services.AddCors(
         );
     }
 );
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // this builds the app
 var app = builder.Build();

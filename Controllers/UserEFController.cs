@@ -1,4 +1,6 @@
+using AutoMapper;
 using DotnetApi.Data;
+using DotnetApi.dtos;
 using DotnetApi.models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,43 +11,52 @@ namespace DotnetApi.Controllers;
 // route connecter=> logic to find WeatherForecaseController
 [Route("[controller]")]
 // inherit ControllerBase class
-public class UserEFController(IConfiguration config) : ControllerBase
+public class UserEFController(IUserRepository userRepository) : ControllerBase
 {
-    readonly DataContextEF entityFramework = new(config);
+    readonly IMapper _mapper = new Mapper(
+        new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<UserToAddDto, User>();
+        })
+    );
+
+    readonly IUserRepository _userRepository = userRepository;
 
     [HttpGet("GetUsers")]
     public IEnumerable<User> GetUsers()
     {
-        IEnumerable<User> users = entityFramework.Users.ToList<User>();
-        return users;
+        return _userRepository.GetUsers();
     }
 
     [HttpGet("GetSingleUser/{id}")]
     public User GetSingleUser(int id)
     {
-        User? user = entityFramework.Users.Where(u => u.UserId == id).FirstOrDefault<User>();
-        if (user != null)
-        {
-            return user;
-        }
-        throw new Exception("Failed to get user");
+        // User? user = entityFramework.Users.Where(u => u.UserId == id).FirstOrDefault<User>();
+        // if (user != null)
+        // {
+        //     return user;
+        // }
+        // throw new Exception("Failed to get user");
+
+        return _userRepository.GetSingleUser(id);
     }
 
     [HttpPost("CreateUser")]
     public IActionResult CreateUser(User user)
     {
-        User userDB = new()
+        User userDB =
+            new()
+            {
+                Active = user.Active,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Gender = user.Gender,
+                Email = user.Email,
+            };
+        _userRepository.AddEntity<User>(userDB);
+        if (_userRepository.SaveChanges())
         {
-            Active = user.Active,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Gender = user.Gender,
-            Email = user.Email
-        };
-        entityFramework.Add(userDB);
-        if(entityFramework.SaveChanges()>0){
             return Ok();
-
         }
         throw new Exception("Unable to create a new user");
     }
@@ -53,9 +64,7 @@ public class UserEFController(IConfiguration config) : ControllerBase
     [HttpPut("UpdateUser")]
     public IActionResult UpdateUser(User user)
     {
-        User? userDB = entityFramework
-            .Users.Where(u => u.UserId == user.UserId)
-            .FirstOrDefault<User>();
+        User? userDB = _userRepository.GetSingleUser(user.UserId);
 
         if (userDB != null)
         {
@@ -64,7 +73,7 @@ public class UserEFController(IConfiguration config) : ControllerBase
             userDB.LastName = user.LastName;
             userDB.Gender = user.Gender;
             userDB.Email = user.Email;
-            if (entityFramework.SaveChanges() > 0)
+            if (_userRepository.SaveChanges())
             {
                 return Ok();
             }
@@ -74,5 +83,11 @@ public class UserEFController(IConfiguration config) : ControllerBase
             }
         }
         throw new Exception("Failed to get user to update");
+    }
+
+    [HttpDelete("DeleteUser/{id}")]
+    public IActionResult DeleteUser(int id)
+    {
+        return Ok();
     }
 }
